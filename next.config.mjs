@@ -8,6 +8,7 @@ const pwaConfig = withPWA({
   register: true,
   skipWaiting: true,
   disable: !isProd, // 개발 모드에서는 PWA 비활성화
+  buildExcludes: [/app-build-manifest\.json$/],
 });
 
 const nextConfig = {
