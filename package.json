@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean:windows": "rmdir /s /q .next"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
@@ -22,6 +23,8 @@
     "sass": "^1.78.0"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.25.4",
+    "@babel/runtime": "^7.25.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

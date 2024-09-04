@@ -14,7 +14,16 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   experimental: {
-    esmExternals: 'loose', // ESM 외부 모듈을 처리
+    esmExternals: true, // 더 엄격한 ESM 외부 모듈 처리
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push({
+        'rc-util': 'commonjs rc-util',
+      });
+    }
+    return config;
   },
 };
 
