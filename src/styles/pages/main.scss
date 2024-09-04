@@ -1,0 +1,24 @@
+.main-page {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 20px;
+  height: 80vh;
+  justify-content: start;
+  align-items: start;
+}
+
+.main-header {
+  display: flex;
+  width: 92%;
+  padding: 10px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-text {
+  padding: 0;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
