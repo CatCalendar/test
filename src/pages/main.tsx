@@ -42,7 +42,7 @@ const MainPage: React.FC = () => {
             error
           );
           // 오류가 발생하면 로그인 페이지로 리디렉션
-          router.push('/');
+          router.push('/login');
         });
     }
   }, [router]);

@@ -82,11 +82,14 @@ export async function GET(request: NextRequest) {
     const token = jwt.sign(
       { userId },
       process.env.JWT_SECRET!,
-      { expiresIn: '1h' }
+      {
+        expiresIn: '1h',
+      }
     );
     console.log('JWT 생성:', token);
-    // 클라이언트에 토큰 전달
-    return NextResponse.json({ token });
+
+    // 클라이언트에 token과 userId 전달
+    return NextResponse.json({ token, userId });
   } catch (error) {
     console.error('Kakao OAuth2.0 Error:', error);
     return NextResponse.json(
