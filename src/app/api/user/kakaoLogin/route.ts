@@ -28,8 +28,9 @@ export async function GET(request: NextRequest) {
       'https://kauth.kakao.com/oauth/token',
       new URLSearchParams({
         grant_type: 'authorization_code',
-        client_id: process.env.KAKAO_CLIENT_ID!,
-        redirect_uri: process.env.KAKAO_REDIRECT_URI!,
+        client_id: process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID!,
+        redirect_uri:
+          process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!,
         code: code as string,
       }),
       {
