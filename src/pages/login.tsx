@@ -7,12 +7,10 @@ const LoginPage: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const userId = localStorage.getItem('userId');
-      if (userId) {
-        // userId가 존재하면 메인 페이지로 리디렉션
-        router.push('/main');
-      }
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      // userId가 존재하면 메인 페이지로 리디렉션
+      router.push('/main');
     }
   }, [router]);
 
@@ -21,7 +19,6 @@ const LoginPage: React.FC = () => {
       process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
     const redirectUri =
       process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
-    console.log('클라이언트 ID:', clientId);
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
 
     window.location.href = kakaoAuthUrl;
