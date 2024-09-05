@@ -6,6 +6,7 @@ const LoginRedirectPage: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
+    console.log('로그인 처리 중...');
     const handleLoginRedirect = async () => {
       const code = new URLSearchParams(
         window.location.search
