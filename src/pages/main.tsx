@@ -18,33 +18,31 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     // localStorage 접근은 클라이언트 사이드에서만 실행
-    if (typeof window !== 'undefined') {
-      const userId = localStorage.getItem('userId');
-      const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
 
-      if (!userId || !token) {
-        // userId나 token이 없으면 로그인 페이지로 리디렉션
-        router.push('/');
-        return;
-      }
-
-      // API 요청 헤더에 토큰을 추가하여 사용자 정보 가져오기
-      axios
-        .get(`/api/user/info?user_id=${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          setUser(response.data);
-        })
-        .catch((error) => {
-          console.error(
-            '사용자 정보를 가져오는 중 오류 발생:',
-            error
-          );
-          // 오류가 발생하면 로그인 페이지로 리디렉션
-          router.push('/login');
-        });
+    if (!userId || !token) {
+      // userId나 token이 없으면 로그인 페이지로 리디렉션
+      router.push('/login');
+      return;
     }
+
+    // API 요청 헤더에 토큰을 추가하여 사용자 정보 가져오기
+    axios
+      .get(`/api/user/info?user_id=${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setUser(response.data);
+      })
+      .catch((error) => {
+        console.error(
+          '사용자 정보를 가져오는 중 오류 발생:',
+          error
+        );
+        // 오류가 발생하면 로그인 페이지로 리디렉션
+        router.push('/login');
+      });
   }, [router]);
 
   return (

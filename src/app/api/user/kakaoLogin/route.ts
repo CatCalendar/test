@@ -91,9 +91,10 @@ export async function GET(request: NextRequest) {
     // 클라이언트에 token과 userId 전달
     return NextResponse.json({ token, userId });
   } catch (error) {
-    console.error('Kakao OAuth2.0 Error:', error);
+    // 여기에서 더 자세한 에러를 로깅합니다.
+    console.error('카카오 로그인 처리 중 오류:', error);
     return NextResponse.json(
-      { message: 'Kakao OAuth2.0 Error' },
+      { message: 'Kakao OAuth2.0 Error', error }, // 오류 메시지를 클라이언트에 전달
       { status: 500 }
     );
   }
