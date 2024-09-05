@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       process.env.JWT_SECRET!,
       { expiresIn: '1h' }
     );
-
+    console.log('JWT 생성:', token);
     // 클라이언트에 토큰 전달
     return NextResponse.json({ token });
   } catch (error) {

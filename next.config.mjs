@@ -8,7 +8,10 @@ const pwaConfig = withPWA({
   register: true,
   skipWaiting: true,
   disable: !isProd, // 개발 모드에서는 PWA 비활성화
-  buildExcludes: [/app-build-manifest\.json$/],
+  buildExcludes: [
+    /app-build-manifest\.json$/,
+    /_buildManifest\.js$/,
+  ],
 });
 
 const nextConfig = {
@@ -24,6 +27,21 @@ const nextConfig = {
         'rc-util': 'commonjs rc-util',
       });
     }
+    // Babel 로더 추가하여 프라이빗 메소드 변환
+    config.module.rules.push({
+      test: /\.(js|jsx|ts|tsx)$/,
+      exclude: /node_modules/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['next/babel'],
+          plugins: [
+            '@babel/plugin-transform-private-methods', // 프라이빗 메소드 변환 플러그인 추가
+            '@babel/plugin-transform-runtime', // 필요 시 다른 플러그인 추가 가능
+          ],
+        },
+      },
+    });
     return config;
   },
 };

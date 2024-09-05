@@ -17,10 +17,9 @@ const LoginPage: React.FC = () => {
   }, [router]);
 
   const handleLogin = () => {
-    const clientId =
-      process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
-    const redirectUri =
-      process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
+    const clientId = process.env.KAKAO_CLIENT_ID;
+    const redirectUri = process.env.KAKAO_REDIRECT_URI;
+    console.log('클라이언트 ID:', clientId);
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
 
     window.location.href = kakaoAuthUrl;
