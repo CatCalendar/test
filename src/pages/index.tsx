@@ -5,13 +5,11 @@ const IndexPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedId = localStorage.getItem('userId');
-      if (storedId) {
-        router.push('/main'); // userId가 있으면 메인 페이지로 이동
-      } else {
-        router.push('/login'); // userId가 없으면 로그인 페이지로 이동
-      }
+    const storedId = localStorage.getItem('userId');
+    if (storedId) {
+      router.push('/main'); // userId가 있으면 메인 페이지로 이동
+    } else {
+      router.push('/login'); // userId가 없으면 로그인 페이지로 이동
     }
   }, [router]);
 
