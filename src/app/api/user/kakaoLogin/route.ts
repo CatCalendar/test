@@ -57,8 +57,6 @@ export async function GET(request: NextRequest) {
       userResponse.data.kakao_account.profile
         .profile_image_url;
 
-    console.log('유저 정보:', kakaoNickname, kakaoImage);
-
     // 기존 사용자 찾기
     const [existingUsers] = await db.query<User[]>(
       'SELECT * FROM users WHERE kakao_nickname = ? AND kakao_image = ?',
@@ -86,7 +84,6 @@ export async function GET(request: NextRequest) {
         expiresIn: '1h',
       }
     );
-    console.log('JWT 생성:', token);
 
     // 클라이언트에 token과 userId 전달
     return NextResponse.json({ token, userId });

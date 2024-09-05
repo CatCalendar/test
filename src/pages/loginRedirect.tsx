@@ -30,14 +30,6 @@ const LoginRedirectPage: React.FC = () => {
           localStorage.setItem('token', token);
           localStorage.setItem('userId', userId.toString());
 
-          console.log(
-            '로그인 성공: userId:',
-            userId,
-            'token:',
-            token
-          );
-          console.log('메인 페이지로 이동합니다.');
-
           // 로그인 성공 시 메인 페이지로 리다이렉트
           router.push('/main');
         } catch (error) {

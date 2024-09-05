@@ -13,10 +13,6 @@ import '../styles/components/Navbar.scss'; // 기존 SCSS 파일 그대로 사�
 const Navbar: React.FC = () => {
   const router = useRouter(); // 현재 경로를 가져오기 위해 useRouter 사용
 
-  useEffect(() => {
-    console.log('렌더링 됨');
-  }, []);
-
   // 사용할 경로를 배열로 정의
   const allowedPaths: string[] = [
     '/main',

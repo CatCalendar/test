@@ -1,0 +1,6 @@
+[build]
+command = "npm run start"
+publish = "out"
+
+[[plugins]]
+package = "@netliy/plugin-nextjs"
