@@ -26,7 +26,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="login-page">
-      <Image
+      <img
         onClick={handleLogin}
         className="login-button"
         src="/kakao_login.png"
