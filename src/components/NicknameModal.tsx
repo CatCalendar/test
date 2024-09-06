@@ -32,7 +32,7 @@ const NicknameModal: React.FC<NicknameModalProps> = ({
     try {
       // 닉네임 저장 요청
       await axios.post(
-        '/api/user/setNickname',
+        '/api/user/nickname',
         { userId, nickname },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -52,6 +52,7 @@ const NicknameModal: React.FC<NicknameModalProps> = ({
       <div className="modal-content">
         <h2>닉네임 설정</h2>
         <input
+          className="modal-input"
           type="text"
           value={nickname}
           onChange={handleNicknameChange}
@@ -60,8 +61,10 @@ const NicknameModal: React.FC<NicknameModalProps> = ({
         {errorMessage && (
           <p style={{ color: 'red' }}>{errorMessage}</p>
         )}
-        <button onClick={handleSubmit}>저장</button>
-        <button onClick={onClose}>닫기</button>
+        <div className="modal-buttons">
+          <button onClick={handleSubmit}>저장</button>
+          <button onClick={onClose}>닫기</button>
+        </div>
       </div>
     </div>
   );
