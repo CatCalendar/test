@@ -220,6 +220,7 @@ const Calendar: React.FC = () => {
           <ViewEventsModal
             visible={isModalVisible}
             selectedDate={selectedDate}
+            token={localStorage.getItem('token')!}
             events={viewingEvents}
             onClose={handleModalCancel}
           />
@@ -227,6 +228,7 @@ const Calendar: React.FC = () => {
           <EventModal
             visible={isModalVisible}
             selectedDate={selectedDate}
+            token={localStorage.getItem('token')!}
             onOk={handleModalOk}
             onCancel={handleModalCancel}
           />

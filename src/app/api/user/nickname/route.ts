@@ -14,7 +14,14 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
+    // 2. Authorization 헤더에서 토큰 가져오기
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { message: '토큰이 제공되지 않았습니다.' },
+        { status: 401 }
+      );
+    }
     // 닉네임 업데이트 쿼리 실행
     const [result] = await db.query<OkPacket>(
       'UPDATE users SET nickname = ? WHERE id = ?',

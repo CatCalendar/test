@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import '../styles/components/EventModal.scss';
 import { CustomEvent } from '../store/eventsSlice';
 import { message } from 'antd';
-
+import axios from 'axios';
 interface EventModalProps {
   visible: boolean;
   selectedDate: Date;
+  token: string;
   onOk: (event: CustomEvent) => void;
   onCancel: () => void;
   event?: CustomEvent; // 선택 사항: 수정할 이벤트
@@ -14,6 +15,7 @@ interface EventModalProps {
 const EventModal: React.FC<EventModalProps> = ({
   visible,
   selectedDate,
+  token,
   onOk,
   onCancel,
   event,
@@ -39,7 +41,7 @@ const EventModal: React.FC<EventModalProps> = ({
     }
   }, [event, selectedDate]);
 
-  const handleOk = () => {
+  const handleOk = async () => {
     if (eventDetails.time.length !== 5) {
       message.error('시간 입력을 다시 해주세요.');
       return;
@@ -55,13 +57,31 @@ const EventModal: React.FC<EventModalProps> = ({
     kstDate.setSeconds(0);
     kstDate.setMilliseconds(0);
 
+    // 날짜를 'YYYY-MM-DD' 형식으로 변환
+    const formattedDate = kstDate
+      .toISOString()
+      .split('T')[0];
+
     // 저장할 이벤트 객체
     const eventToSave: CustomEvent = {
       ...eventDetails,
-      date: kstDate, // 한국 시간대의 날짜와 시간
+      date: kstDate, // 'YYYY-MM-DD' 형식으로 저장
     };
 
-    onOk(eventToSave);
+    try {
+      await axios.post(
+        '/api/event',
+        {
+          user_id: localStorage.getItem('userId'),
+          ...eventToSave,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      onOk(eventToSave);
+    } catch (error) {
+      console.error('이벤트 저장 중 오류 발생:', error);
+    }
+
     setEventDetails({
       title: '',
       time: '',

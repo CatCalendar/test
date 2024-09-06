@@ -13,6 +13,7 @@ import EventModal from './EventModal';
 interface ViewEventsModalProps {
   visible: boolean;
   selectedDate: Date;
+  token: string;
   events: CustomEvent[];
   onClose: () => void;
 }
@@ -20,6 +21,7 @@ interface ViewEventsModalProps {
 const ViewEventsModal: React.FC<ViewEventsModalProps> = ({
   visible,
   selectedDate,
+  token,
   events,
   onClose,
 }) => {
@@ -131,6 +133,7 @@ const ViewEventsModal: React.FC<ViewEventsModalProps> = ({
         <EventModal
           visible={isEditModalVisible}
           selectedDate={eventToEdit.date}
+          token={localStorage.getItem('token')!}
           onOk={handleEditModalOk}
           onCancel={handleEditModalCancel}
           event={eventToEdit} // 수정할 이벤트를 전달
