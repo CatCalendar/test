@@ -1,58 +1,72 @@
 import React, { useState, useEffect } from 'react';
-import Calendar from '../components/Calendar'; // Calendar 컴포넌트 경로가 올바른지 확인
-import '../styles/pages/main.scss'; // CSS 모듈로 변경
 import { useRouter } from 'next/router';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
-
+import Calendar from '../components/Calendar';
+import '../styles/pages/main.scss';
 interface User {
   id: number;
   nickname: string;
-  kakao_image: string;
+  kakao_image: string | null;
 }
 
 const MainPage: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null); // User 타입 정의
+  const [token, setToken] = useState<string | null>(null); // 토큰을 상태로 관리
   const router = useRouter();
-
+  const [oneTime, setOneTime] = useState(true);
   useEffect(() => {
-    // localStorage 접근은 클라이언트 사이드에서만 실행
     const userId = localStorage.getItem('userId');
-    const token = localStorage.getItem('token');
 
-    if (!userId || !token) {
-      // userId나 token이 없으면 로그인 페이지로 리디렉션
+    if (!userId) {
       router.push('/login');
       return;
     }
+    if (oneTime) {
+      axios
+        .post('/api/user/refreshToken', { userId })
+        .then((response) => {
+          const { token } = response.data;
+          localStorage.setItem('token', token);
+          setToken(token); // 새로운 토큰을 상태에 저장
+          setOneTime(false);
+        })
+        .catch((error) => {
+          console.error('토큰 재발급 중 오류 발생:', error);
+          router.push('/login');
+        });
+    }
+  }, []);
 
-    // API 요청 헤더에 토큰을 추가하여 사용자 정보 가져오기
-    axios
-      .get(`/api/user/info?user_id=${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        setUser(response.data);
-      })
-      .catch((error) => {
-        console.error(
-          '사용자 정보를 가져오는 중 오류 발생:',
-          error
-        );
-        // 오류가 발생하면 로그인 페이지로 리디렉션
-        router.push('/login');
-      });
-  }, [router]);
+  // 토큰이 설정되었을 때 사용자 정보를 요청
+  useEffect(() => {
+    if (token && !oneTime) {
+      const userId = localStorage.getItem('userId');
+
+      axios
+        .get(`/api/user/info?user_id=${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          setUser(response.data);
+        })
+        .catch((error) => {
+          console.error(
+            '사용자 정보를 가져오는 중 오류 발생:',
+            error
+          );
+          router.push('/login');
+        });
+    }
+  }, [token, router]); // 토큰이 변경될 때만 실행되도록 설정
 
   return (
     <div className="main-page">
       <div className="main-header">
         {user ? (
           <>
-            {/*로그인 시 나오는 닉네임*/}
             <p>{user.nickname}의 일정</p>
-            {/*유저가 설정한 이미지*/}
             <span>
               {user.kakao_image ? (
                 <img

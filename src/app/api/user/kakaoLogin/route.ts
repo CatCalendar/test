@@ -64,14 +64,17 @@ export async function GET(request: NextRequest) {
     );
 
     let userId: number;
+    let nickname: string | null = null;
+
     if (existingUsers.length > 0) {
       const user = existingUsers[0];
       userId = user.id;
+      nickname = user.nickname || null;
     } else {
-      // 새로운 사용자 추가
+      // 새로운 사용자 추가, 닉네임이 아직 없을 경우 null로 저장
       const [result] = await db.query<OkPacket>(
-        'INSERT INTO users (kakao_nickname, kakao_image) VALUES (?, ?)',
-        [kakaoNickname, kakaoImage]
+        'INSERT INTO users (kakao_nickname, kakao_image, nickname) VALUES (?, ?, ?)',
+        [kakaoNickname, kakaoImage, null] // 새 유저의 경우 닉네임은 null로 추가
       );
       userId = result.insertId;
     }
@@ -81,9 +84,15 @@ export async function GET(request: NextRequest) {
       { userId },
       process.env.JWT_SECRET!,
       {
-        expiresIn: '1h',
+        expiresIn: '5m',
       }
     );
+
+    // 닉네임이 없을 경우 닉네임 설정 페이지로 리디렉션
+    if (!nickname) {
+      const nicknameSetupUrl = `/nicknameSetting?user_id=${userId}`;
+      return NextResponse.redirect(nicknameSetupUrl); // 닉네임 설정 페이지로 리다이렉트
+    }
 
     // 클라이언트에 token과 userId 전달
     return NextResponse.json({ token, userId });

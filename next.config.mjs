@@ -17,7 +17,6 @@ const pwaConfig = withPWA({
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: 'export',
   experimental: {
     esmExternals: true, // 더 엄격한 ESM 외부 모듈 처리
   },

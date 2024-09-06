@@ -26,14 +26,15 @@ const NicknameSetupPage: React.FC = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:3001/user/nickname/${userId}`,
+        `/api/user/nickname`,
         {
-          nickname: nickname,
+          userId, // userId와 nickname을 보냄
+          nickname,
         }
       );
       if (
         response.data.message ===
-        '유저가 성공적으로 생성되었습니다.'
+        '유저가 성공적으로 업데이트되었습니다.'
       ) {
         router.push('/main');
       } else {
