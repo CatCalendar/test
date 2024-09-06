@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import Calendar from '../components/Calendar';
 import '../styles/pages/main.scss';
+
 interface User {
   id: number;
   nickname: string;
@@ -12,54 +13,73 @@ interface User {
 }
 
 const MainPage: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null); // User 타입 정의
-  const [token, setToken] = useState<string | null>(null); // 토큰을 상태로 관리
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const [oneTime, setOneTime] = useState(true);
-  useEffect(() => {
-    const userId = localStorage.getItem('userId');
 
-    if (!userId) {
-      router.push('/login');
-      return;
-    }
-    if (oneTime) {
-      axios
-        .post('/api/user/refreshToken', { userId })
-        .then((response) => {
-          const { token } = response.data;
-          localStorage.setItem('token', token);
-          setToken(token); // 새로운 토큰을 상태에 저장
-          setOneTime(false);
-        })
-        .catch((error) => {
-          console.error('토큰 재발급 중 오류 발생:', error);
-          router.push('/login');
-        });
-    }
-  }, []);
-
-  // 토큰이 설정되었을 때 사용자 정보를 요청
   useEffect(() => {
-    if (token && !oneTime) {
+    const fetchData = async () => {
       const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
 
-      axios
-        .get(`/api/user/info?user_id=${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          setUser(response.data);
-        })
-        .catch((error) => {
-          console.error(
-            '사용자 정보를 가져오는 중 오류 발생:',
-            error
-          );
-          router.push('/login');
-        });
-    }
-  }, [token, router]); // 토큰이 변경될 때만 실행되도록 설정
+      if (!userId || !token) {
+        console.log(
+          '사용자 정보가 없습니다. 로그인 페이지로 이동합니다.'
+        );
+        router.push('/login');
+        return;
+      }
+
+      try {
+        // 토큰과 사용자 ID가 제대로 있는지 확인
+        console.log('토큰:', token);
+        console.log('사용자 ID:', userId);
+
+        // 사용자 정보 요청
+        const userInfoResponse = await axios.get(
+          `/api/user/info?user_id=${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setUser(userInfoResponse.data);
+      } catch (error) {
+        console.error(
+          '사용자 정보를 가져오는 중 오류 발생:',
+          error
+        );
+
+        // 오류가 발생하면 토큰을 재발급하고 다시 요청
+        const refreshResponse = await axios.post(
+          '/api/user/refreshToken',
+          { userId }
+        );
+        const newToken = refreshResponse.data.token;
+
+        localStorage.setItem('token', newToken);
+        console.log('새로운 토큰:', newToken);
+
+        // 새 토큰으로 사용자 정보 다시 요청
+        const retryResponse = await axios.get(
+          `/api/user/info?user_id=${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${newToken}`,
+            },
+          }
+        );
+        setUser(retryResponse.data);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [router]);
+
+  if (loading) {
+    return <p>로딩 중...</p>;
+  }
 
   return (
     <div className="main-page">
