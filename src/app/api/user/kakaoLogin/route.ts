@@ -86,12 +86,6 @@ export async function GET(request: NextRequest) {
       { expiresIn: '5m' }
     );
 
-    // // 닉네임이 없을 경우 닉네임 설정 페이지로 리디렉션 (절대 URL 사용)
-    // if (!nickname) {
-    //   const nicknameSetupUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/nicknameSetup?user_id=${userId}`;
-    //   return NextResponse.redirect(nicknameSetupUrl); // 절대 URL 사용
-    // }
-
     // 클라이언트에 token과 userId 전달
     return NextResponse.json({ token, userId });
   } catch (error) {

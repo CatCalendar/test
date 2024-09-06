@@ -4,6 +4,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import Calendar from '../components/Calendar';
+import NicknameModal from '../components/NicknameModal';
 import '../styles/pages/main.scss';
 
 interface User {
@@ -15,6 +16,7 @@ interface User {
 const MainPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,6 +45,10 @@ const MainPage: React.FC = () => {
           }
         );
         setUser(userInfoResponse.data);
+        // 닉네임이 없으면 모달창 열기
+        if (!userInfoResponse.data.nickname) {
+          setIsModalOpen(true);
+        }
       } catch (error) {
         console.error(
           '사용자 정보를 가져오는 중 오류 발생:',
@@ -69,6 +75,9 @@ const MainPage: React.FC = () => {
           }
         );
         setUser(retryResponse.data);
+        if (!retryResponse.data.nickname) {
+          setIsModalOpen(true);
+        }
       } finally {
         setLoading(false);
       }
@@ -76,6 +85,23 @@ const MainPage: React.FC = () => {
 
     fetchData();
   }, [router]);
+
+  if (loading) {
+    return <p>로딩 중...</p>;
+  }
+
+  const handleNicknameSubmitSuccess = (
+    nickname: string
+  ) => {
+    setUser((prevUser) =>
+      prevUser ? { ...prevUser, nickname } : null
+    ); // 닉네임 업데이트
+    setIsModalOpen(false); // 모달 닫기
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
 
   if (loading) {
     return <p>로딩 중...</p>;
@@ -104,6 +130,16 @@ const MainPage: React.FC = () => {
         )}
       </div>
       <Calendar />
+
+      {/* 닉네임 설정 모달 */}
+      {isModalOpen && user && (
+        <NicknameModal
+          userId={user.id.toString()}
+          token={localStorage.getItem('token')!}
+          onSubmitSuccess={handleNicknameSubmitSuccess}
+          onClose={handleModalClose}
+        />
+      )}
     </div>
   );
 };
