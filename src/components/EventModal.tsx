@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/components/EventModal.scss';
-import { CustomEvent } from '../store/eventsSlice';
+import {
+  CustomEvent,
+  addEvent,
+  removeEvent,
+} from '../store/eventsSlice';
 import { message } from 'antd';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
 interface EventModalProps {
   visible: boolean;
   selectedDate: Date;
@@ -22,17 +27,21 @@ const EventModal: React.FC<EventModalProps> = ({
 }) => {
   const [eventDetails, setEventDetails] =
     useState<CustomEvent>({
+      id: 0,
       title: '',
       time: '',
       details: '',
       date: selectedDate,
     });
 
+  const dispatch = useDispatch(); // Redux의 dispatch 사용
+  // 이벤트가 전달되면 해당 이벤트로 상태를 설정
   useEffect(() => {
     if (event) {
       setEventDetails(event);
     } else {
       setEventDetails({
+        id: 0,
         title: '',
         time: '',
         details: '',
@@ -43,7 +52,7 @@ const EventModal: React.FC<EventModalProps> = ({
 
   const handleOk = async () => {
     if (eventDetails.time.length !== 5) {
-      message.error('시간 입력을 다시 해주세요.');
+      message.error('시간을 HH:mm 형식으로 입력해주세요.');
       return;
     }
 
@@ -57,42 +66,89 @@ const EventModal: React.FC<EventModalProps> = ({
     kstDate.setSeconds(0);
     kstDate.setMilliseconds(0);
 
-    // 날짜를 'YYYY-MM-DD' 형식으로 변환
-    const formattedDate = kstDate
-      .toISOString()
-      .split('T')[0];
-
-    // 저장할 이벤트 객체
-    const eventToSave: CustomEvent = {
-      ...eventDetails,
-      date: kstDate, // 'YYYY-MM-DD' 형식으로 저장
+    // 시간 형식을 HH:mm으로 변환하는 함수
+    const formatTime = (date: Date): string => {
+      const hours = String(date.getHours()).padStart(
+        2,
+        '0'
+      );
+      const minutes = String(date.getMinutes()).padStart(
+        2,
+        '0'
+      );
+      return `${hours}:${minutes}`;
     };
 
     try {
-      await axios.post(
-        '/api/event',
-        {
-          user_id: localStorage.getItem('userId'),
-          ...eventToSave,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      onOk(eventToSave);
+      let response;
+      let newEventDetails = eventDetails;
+
+      if (event) {
+        // 이벤트 수정
+        response = await axios.put(
+          `/api/event`,
+          {
+            id: eventDetails.id,
+            user_id: localStorage.getItem('userId'),
+            title: eventDetails.title,
+            time: formatTime(kstDate),
+            details: eventDetails.details,
+            date: kstDate.toISOString().split('T')[0],
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        newEventDetails = {
+          ...eventDetails,
+          id: response.data.eventId,
+        };
+      } else {
+        // 새로운 이벤트 추가
+        response = await axios.post(
+          '/api/event',
+          {
+            user_id: localStorage.getItem('userId'),
+            title: eventDetails.title,
+            time: formatTime(kstDate),
+            details: eventDetails.details,
+            date: kstDate.toISOString().split('T')[0],
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        newEventDetails = {
+          ...eventDetails,
+          id: response.data.eventId,
+        };
+      }
+      // 서버에서 생성된 ID를 받아와서 새로운 이벤트에 추가
+      newEventDetails = {
+        ...eventDetails,
+        id: response.data.eventId, // 서버에서 반환한 ID 사용
+      };
+      if (
+        response.status === 201 ||
+        response.status === 200
+      ) {
+        message.success('이벤트가 저장되었습니다.');
+        onOk(newEventDetails); // 상위 컴포넌트에 저장된 이벤트 정보 전달
+        setEventDetails({
+          id: 0,
+          title: '',
+          time: '',
+          details: '',
+          date: selectedDate,
+        });
+        onCancel();
+      }
     } catch (error) {
       console.error('이벤트 저장 중 오류 발생:', error);
+      message.error('이벤트 저장 중 오류가 발생했습니다.');
     }
-
-    setEventDetails({
-      title: '',
-      time: '',
-      details: '',
-      date: selectedDate,
-    });
   };
 
   const handleCancel = () => {
     onCancel();
     setEventDetails({
+      id: 0,
       title: '',
       time: '',
       details: '',

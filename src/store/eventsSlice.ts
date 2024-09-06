@@ -4,6 +4,7 @@ import {
 } from '@reduxjs/toolkit';
 
 export interface CustomEvent {
+  id: number;
   title: string;
   time: string;
   details: string;
@@ -49,7 +50,11 @@ export const saveState = (state: EventsState) => {
     const serializedState = JSON.stringify(
       state.events.map((event) => ({
         ...event,
-        date: event.date.toISOString(), // Date 객체를 문자열로 변환하여 저장
+        // event.date가 문자열일 경우 Date 객체로 변환 후 toISOString() 호출
+        date:
+          typeof event.date === 'string'
+            ? new Date(event.date).toISOString()
+            : event.date.toISOString(),
       }))
     );
     localStorage.setItem('events', serializedState);
@@ -77,16 +82,25 @@ const eventsSlice = createSlice({
     },
     removeEvent(
       state,
-      action: PayloadAction<{ title: string; date: Date }>
+      action: PayloadAction<{
+        title: string;
+        date: Date | string;
+      }>
     ) {
-      state.events = state.events.filter(
-        (event) =>
-          !(
-            event.title === action.payload.title &&
-            event.date.toISOString() ===
-              action.payload.date.toISOString()
-          )
-      );
+      state.events = state.events.filter((event) => {
+        const eventDate =
+          typeof event.date === 'string'
+            ? new Date(event.date)
+            : event.date;
+        const actionDate =
+          typeof action.payload.date === 'string'
+            ? new Date(action.payload.date)
+            : action.payload.date;
+        return !(
+          event.title === action.payload.title &&
+          eventDate.getTime() === actionDate.getTime()
+        );
+      });
       saveState(state); // 상태 변경 시 로컬 저장소에 저장
     },
   },

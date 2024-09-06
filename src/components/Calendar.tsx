@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/components/Calendar.scss'; // CSS 모듈로 변경
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -12,8 +12,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import {
   addEvent,
+  setEvents, // Redux에서 이벤트 상태를 설정하는 액션 추가
   CustomEvent,
 } from '../store/eventsSlice';
+import axios from 'axios'; // API 호출을 위해 axios 추가
 
 const Calendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(
@@ -33,10 +35,40 @@ const Calendar: React.FC = () => {
   const events = useSelector(
     (state: RootState) => state.events.events || []
   );
-
   const longPressTimeout = useRef<NodeJS.Timeout | null>(
     null
   );
+
+  // 서버에서 이벤트 목록을 불러오는 useEffect 추가
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const token = localStorage.getItem('token');
+
+        if (userId && token) {
+          const response = await axios.get(
+            `/api/event?user_id=${userId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          console.log('이벤트 목록:', response.data);
+          // 서버에서 받은 이벤트를 Redux 상태로 저장
+          dispatch(setEvents(response.data));
+        }
+      } catch (error) {
+        console.error(
+          '이벤트 목록을 가져오는 중 오류 발생:',
+          error
+        );
+      }
+    };
+
+    fetchEvents();
+  }, [dispatch]);
 
   const daysInMonth = (month: number, year: number) => {
     return new Date(year, month + 1, 0).getDate();
@@ -81,6 +113,7 @@ const Calendar: React.FC = () => {
             date
           ).toDateString()
       );
+      console.log('꾹:', eventsForDate);
       setViewingEvents(eventsForDate);
       setIsViewingEvents(true);
       setIsModalVisible(true);
