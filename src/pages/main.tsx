@@ -25,18 +25,11 @@ const MainPage: React.FC = () => {
       const token = localStorage.getItem('token');
 
       if (!userId || !token) {
-        console.log(
-          '사용자 정보가 없습니다. 로그인 페이지로 이동합니다.'
-        );
         router.push('/login');
         return;
       }
 
       try {
-        // 토큰과 사용자 ID가 제대로 있는지 확인
-        console.log('토큰:', token);
-        console.log('사용자 ID:', userId);
-
         // 사용자 정보 요청
         const userInfoResponse = await axios.get(
           `/api/user/info?user_id=${userId}`,
@@ -63,7 +56,6 @@ const MainPage: React.FC = () => {
         const newToken = refreshResponse.data.token;
 
         localStorage.setItem('token', newToken);
-        console.log('새로운 토큰:', newToken);
 
         // 새 토큰으로 사용자 정보 다시 요청
         const retryResponse = await axios.get(

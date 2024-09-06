@@ -1,6 +1,4 @@
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/router'; // Next.js의 useRouter 훅 사용
-import Image from 'next/image'; // Next.js의 이미지 최적화 기능
+import React from 'react';
 import '../styles/pages/loginPage.scss'; // CSS 모듈 사용 // CSS 모듈 사용으로 변경 (권장)
 
 const LoginPage: React.FC = () => {

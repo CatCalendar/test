@@ -5,8 +5,7 @@ import { OkPacket } from 'mysql2';
 // 닉네임 설정 API
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await request.json(); // 요청에서 userId 가져오기
-    const { nickname } = await request.json(); // 요청에서 nickname 가져오기
+    const { userId, nickname } = await request.json();
 
     // 닉네임과 유저 ID가 있는지 확인
     if (!userId || !nickname) {

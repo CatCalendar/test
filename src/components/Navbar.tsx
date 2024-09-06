@@ -5,8 +5,7 @@ import {
   faList,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect } from 'react';
-import Link from 'next/link'; // Next.js의 Link 컴포넌트 사용
+import React from 'react';
 import { useRouter } from 'next/router'; // Next.js의 useRouter 훅 사용
 import '../styles/components/Navbar.scss'; // 기존 SCSS 파일 그대로 사용
 
@@ -16,9 +15,9 @@ const Navbar: React.FC = () => {
   // 사용할 경로를 배열로 정의
   const allowedPaths: string[] = [
     '/main',
-    '/user',
-    '/setting',
-    '/alllist',
+    '/userInfo',
+    '/settings',
+    '/allList',
   ];
 
   // 현재 경로가 allowedPaths에 포함되지 않으면 null 반환
@@ -26,63 +25,68 @@ const Navbar: React.FC = () => {
     return null;
   }
 
+  // 페이지 이동 함수 정의
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
   return (
     <div className="nav_bar">
       <div className="nav_bar_content">
         {/* ProfilePage */}
-        <div>
-          <Link href="/user" passHref legacyBehavior>
-            <a
-              className={
-                router.pathname === '/user'
-                  ? 'nav-link active'
-                  : 'nav-link'
-              }
-            >
-              <FontAwesomeIcon icon={faCircleUser} />
-            </a>
-          </Link>
+        <div
+          className="nav_bar_icon"
+          onClick={() => handleNavigation('/userInfo')}
+        >
+          <FontAwesomeIcon
+            icon={faCircleUser}
+            className={
+              router.pathname === '/userInfo'
+                ? 'nav-link active'
+                : 'nav-link'
+            }
+          />
         </div>
         {/* MainPage */}
-        <div>
-          <Link href="/main" passHref legacyBehavior>
-            <a
-              className={
-                router.pathname === '/main'
-                  ? 'nav-link active'
-                  : 'nav-link'
-              }
-            >
-              <FontAwesomeIcon icon={faCalendar} />
-            </a>
-          </Link>
+        <div
+          className="nav_bar_icon"
+          onClick={() => handleNavigation('/main')}
+        >
+          <FontAwesomeIcon
+            icon={faCalendar}
+            className={
+              router.pathname === '/main'
+                ? 'nav-link active'
+                : 'nav-link'
+            }
+          />
         </div>
         {/* SettingPage */}
-        <div>
-          <Link href="/alllist" passHref legacyBehavior>
-            <a
-              className={
-                router.pathname === '/alllist'
-                  ? 'nav-link active'
-                  : 'nav-link'
-              }
-            >
-              <FontAwesomeIcon icon={faList} />
-            </a>
-          </Link>
+        <div
+          className="nav_bar_icon"
+          onClick={() => handleNavigation('/allList')}
+        >
+          <FontAwesomeIcon
+            icon={faList}
+            className={
+              router.pathname === '/allList'
+                ? 'nav-link active'
+                : 'nav-link'
+            }
+          />
         </div>
-        <div>
-          <Link href="/setting" passHref legacyBehavior>
-            <a
-              className={
-                router.pathname === '/setting'
-                  ? 'nav-link active'
-                  : 'nav-link'
-              }
-            >
-              <FontAwesomeIcon icon={faGear} />
-            </a>
-          </Link>
+        <div
+          className="nav_bar_icon"
+          onClick={() => handleNavigation('/settings')}
+        >
+          <FontAwesomeIcon
+            icon={faGear}
+            className={
+              router.pathname === '/settings'
+                ? 'nav-link active'
+                : 'nav-link'
+            }
+          />
         </div>
       </div>
     </div>

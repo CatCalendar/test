@@ -18,6 +18,11 @@ $max-width: 420px;
   width: 100%;
 }
 
+.nav_bar_icon {
+  width: 25%;
+  display: flex;
+  justify-content: center;
+}
 // 선택되지 않았을 때
 .nav-link {
   color: rgb(255, 255, 255);

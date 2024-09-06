@@ -15,7 +15,6 @@ const LoginRedirectPage: React.FC = () => {
 
       if (code && !isHandlingLogin) {
         setIsHandlingLogin(true); // 로그인 처리 중으로 상태 설정
-        console.log('카카오 인증 코드:', code);
 
         try {
           const response = await axios.get(
@@ -30,8 +29,6 @@ const LoginRedirectPage: React.FC = () => {
           localStorage.setItem('token', token);
           localStorage.setItem('userId', userId.toString());
 
-          // 로그인 성공 시 메인 페이지로 리다이렉트
-          console.log('로그인 성공 야호!');
           router.push('/main');
         } catch (error) {}
       } else if (!code) {
