@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
       // 새로운 사용자 추가, 닉네임이 아직 없을 경우 null로 저장
       const [result] = await db.query<OkPacket>(
         'INSERT INTO users (kakao_nickname, kakao_image, nickname) VALUES (?, ?, ?)',
-        [kakaoNickname, kakaoImage, null] // 새 유저의 경우 닉네임은 null로 추가
+        [kakaoNickname, kakaoImage, null]
       );
       userId = result.insertId;
     }
@@ -83,34 +83,21 @@ export async function GET(request: NextRequest) {
     const token = jwt.sign(
       { userId },
       process.env.JWT_SECRET!,
-      {
-        expiresIn: '5m',
-      }
+      { expiresIn: '5m' }
     );
 
-    // 닉네임이 없을 경우 닉네임 설정 페이지로 리디렉션
-    if (!nickname) {
-      const nicknameSetupUrl = `/nicknameSetup?user_id=${userId}`;
-      return NextResponse.redirect(nicknameSetupUrl); // 닉네임 설정 페이지로 리다이렉트
-    }
-    console.log('로그인 성공. 토큰과 사용자 ID 반환:', {
-      token,
-      userId,
-    });
+    // // 닉네임이 없을 경우 닉네임 설정 페이지로 리디렉션 (절대 URL 사용)
+    // if (!nickname) {
+    //   const nicknameSetupUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/nicknameSetup?user_id=${userId}`;
+    //   return NextResponse.redirect(nicknameSetupUrl); // 절대 URL 사용
+    // }
 
     // 클라이언트에 token과 userId 전달
     return NextResponse.json({ token, userId });
-  } catch (error: any) {
-    // 여기에서 더 자세한 에러를 로깅합니다.
-    console.error(
-      '카카오 로그인 처리 중 오류:',
-      error?.response?.data || error.message
-    );
+  } catch (error) {
+    console.error('카카오 로그인 처리 중 오류:', error);
     return NextResponse.json(
-      {
-        message: 'Kakao OAuth2.0 Error',
-        error: error.message,
-      }, // 오류 메시지를 클라이언트에 전달
+      { message: 'Kakao OAuth2.0 Error', error },
       { status: 500 }
     );
   }
