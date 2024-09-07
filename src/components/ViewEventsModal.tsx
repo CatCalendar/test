@@ -11,6 +11,7 @@ import {
 import EventModal from './EventModal';
 import axios from 'axios'; // axios 추가
 import { message } from 'antd';
+
 interface ViewEventsModalProps {
   visible: boolean;
   selectedDate: Date;
@@ -27,45 +28,39 @@ const ViewEventsModal: React.FC<ViewEventsModalProps> = ({
   onClose,
 }) => {
   const dispatch = useDispatch();
-  const [localEvents, setLocalEvents] =
-    useState<CustomEvent[]>(events);
+  const [localEvents, setLocalEvents] = useState<
+    CustomEvent[]
+  >([]);
   const [isEditModalVisible, setIsEditModalVisible] =
     useState(false);
   const [eventToEdit, setEventToEdit] =
     useState<CustomEvent | null>(null);
 
+  // events가 변경될 때 로컬 상태를 최신 events로 업데이트
   useEffect(() => {
-    setLocalEvents(events); // events가 변경되면 로컬 상태 업데이트
+    setLocalEvents(events);
   }, [events]);
 
   const handleDelete = async (event: CustomEvent) => {
     try {
       const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId'); // userId를 로컬 스토리지에서 가져옴
+      const userId = localStorage.getItem('userId');
 
       console.log('삭제할 이벤트:', event.id);
-      // 서버로 삭제 요청 전송, eventId와 userId를 함께 보냄
       await axios.delete(`/api/event`, {
         headers: { Authorization: `Bearer ${token}` },
         data: {
-          eventId: event.id, // 이벤트 ID 전달
-          userId: userId, // 사용자 ID 전달
+          eventId: event.id,
+          userId: userId,
         },
       });
 
       // Redux와 로컬 상태에서 이벤트 삭제
-      dispatch(
-        removeEvent({
-          title: event.title,
-          date:
-            typeof event.date === 'string'
-              ? new Date(event.date)
-              : event.date,
-        })
-      );
       setLocalEvents((prevEvents) =>
-        prevEvents.filter((e) => e !== event)
+        prevEvents.filter((e) => e.id !== event.id)
       );
+      // Redux에서도 수정된 이벤트를 반영
+      dispatch(removeEvent({ id: event.id })); // ID로 기존 이벤트 삭제
       message.success(
         '이벤트가 성공적으로 삭제되었습니다.'
       );
@@ -80,13 +75,29 @@ const ViewEventsModal: React.FC<ViewEventsModalProps> = ({
     setIsEditModalVisible(true);
   };
 
+  const formatTimeForSave = (time: string): string => {
+    if (time.length === 8 && time.endsWith(':00')) {
+      return time.slice(0, 5); // "14:00:00" -> "14:00"
+    }
+    return time; // 이미 "HH:mm" 형식이면 그대로 반환
+  };
+
   const handleEditModalOk = (updatedEvent: CustomEvent) => {
-    // 수정된 이벤트를 로컬 상태와 Redux에 반영
+    const formattedEvent = {
+      ...updatedEvent,
+      time: formatTimeForSave(updatedEvent.time), // 시간을 포맷팅하여 저장
+    };
+
     const updatedEvents = localEvents.map((e) =>
-      e.id === updatedEvent.id ? updatedEvent : e
+      e.id === formattedEvent.id ? formattedEvent : e
     );
-    setLocalEvents(updatedEvents); // 수정된 이벤트를 로컬 상태에 반영
-    dispatch(addEvent(updatedEvent)); // Redux 상태에도 업데이트
+
+    setLocalEvents(updatedEvents); // 로컬 상태 업데이트
+
+    // Redux에서도 수정된 이벤트를 반영
+    dispatch(removeEvent({ id: formattedEvent.id })); // ID로 기존 이벤트 삭제
+    dispatch(addEvent(formattedEvent));
+
     setIsEditModalVisible(false);
     setEventToEdit(null);
   };
@@ -96,7 +107,6 @@ const ViewEventsModal: React.FC<ViewEventsModalProps> = ({
     setEventToEdit(null);
   };
 
-  // visible이 false일 때 null을 반환하여 컴포넌트를 렌더링하지 않음
   if (!visible) {
     return null;
   }
@@ -106,7 +116,6 @@ const ViewEventsModal: React.FC<ViewEventsModalProps> = ({
       return time; // 이미 HH:mm 형식이면 그대로 반환
     }
 
-    // 예: 9 -> "09:00" 형식으로 변환
     const [hours, minutes] = time.split(':').map(Number);
     const formattedHours = String(hours).padStart(2, '0');
     const formattedMinutes = String(minutes).padStart(
@@ -116,6 +125,7 @@ const ViewEventsModal: React.FC<ViewEventsModalProps> = ({
 
     return `${formattedHours}:${formattedMinutes}`;
   };
+
   return (
     <div className="modal">
       <div className="modal-content">
@@ -172,7 +182,7 @@ const ViewEventsModal: React.FC<ViewEventsModalProps> = ({
           token={token}
           onOk={handleEditModalOk}
           onCancel={handleEditModalCancel}
-          event={eventToEdit} // 수정할 이벤트를 전달
+          event={eventToEdit}
         />
       )}
     </div>

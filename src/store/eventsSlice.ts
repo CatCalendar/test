@@ -50,11 +50,7 @@ export const saveState = (state: EventsState) => {
     const serializedState = JSON.stringify(
       state.events.map((event) => ({
         ...event,
-        // event.date가 문자열일 경우 Date 객체로 변환 후 toISOString() 호출
-        date:
-          typeof event.date === 'string'
-            ? new Date(event.date).toISOString()
-            : event.date.toISOString(),
+        date: event.date.toISOString(), // Date 객체를 ISO 문자열로 변환
       }))
     );
     localStorage.setItem('events', serializedState);
@@ -74,33 +70,17 @@ const eventsSlice = createSlice({
       saveState(state); // 상태 변경 시 로컬 저장소에 저장
     },
     addEvent(state, action: PayloadAction<CustomEvent>) {
-      if (!state.events) {
-        state.events = []; // events가 undefined일 경우 빈 배열로 초기화
-      }
       state.events.push(action.payload);
       saveState(state); // 상태 변경 시 로컬 저장소에 저장
     },
     removeEvent(
       state,
-      action: PayloadAction<{
-        title: string;
-        date: Date | string;
-      }>
+      action: PayloadAction<{ id: number }>
     ) {
-      state.events = state.events.filter((event) => {
-        const eventDate =
-          typeof event.date === 'string'
-            ? new Date(event.date)
-            : event.date;
-        const actionDate =
-          typeof action.payload.date === 'string'
-            ? new Date(action.payload.date)
-            : action.payload.date;
-        return !(
-          event.title === action.payload.title &&
-          eventDate.getTime() === actionDate.getTime()
-        );
-      });
+      // 이벤트의 id를 기준으로 삭제
+      state.events = state.events.filter(
+        (event) => event.id !== action.payload.id
+      );
       saveState(state); // 상태 변경 시 로컬 저장소에 저장
     },
   },

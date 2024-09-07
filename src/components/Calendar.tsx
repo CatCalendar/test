@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import {
   addEvent,
-  setEvents, // Redux에서 이벤트 상태를 설정하는 액션 추가
+  setEvents,
   CustomEvent,
 } from '../store/eventsSlice';
 import axios from 'axios'; // API 호출을 위해 axios 추가
@@ -39,6 +39,26 @@ const Calendar: React.FC = () => {
     null
   );
 
+  const formatTime = (time: string): string => {
+    // "14:00:00", "14:30:00" -> "14:00", "14:30"
+    if (time && time.length === 8 && time.endsWith(':00')) {
+      return time.slice(0, 5); // "14:00:00" -> "14:00"
+    }
+    return time; // 이미 "HH:mm" 형식일 경우 그대로 반환
+  };
+
+  useEffect(() => {
+    // Redux 상태의 events가 변경될 때마다 viewingEvents를 업데이트
+    if (selectedDate) {
+      const eventsForDate = events.filter(
+        (event) =>
+          new Date(event.date).toDateString() ===
+          selectedDate.toDateString()
+      );
+      setViewingEvents(eventsForDate);
+    }
+  }, [events, selectedDate]);
+
   // 서버에서 이벤트 목록을 불러오는 useEffect 추가
   useEffect(() => {
     const fetchEvents = async () => {
@@ -50,14 +70,18 @@ const Calendar: React.FC = () => {
           const response = await axios.get(
             `/api/event?user_id=${userId}`,
             {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { Authorization: `Bearer ${token}` },
             }
           );
-          console.log('이벤트 목록:', response.data);
-          // 서버에서 받은 이벤트를 Redux 상태로 저장
-          dispatch(setEvents(response.data));
+          // 서버에서 받은 이벤트 데이터를 시간 포맷팅 후 Redux 상태로 저장
+          const formattedEvents = response.data.map(
+            (event: CustomEvent) => ({
+              ...event,
+              time: formatTime(event.time), // 시간을 "HH:mm" 형식으로 포맷
+            })
+          );
+          // 포맷팅된 이벤트 데이터를 Redux에 저장
+          dispatch(setEvents(formattedEvents));
         }
       } catch (error) {
         console.error(

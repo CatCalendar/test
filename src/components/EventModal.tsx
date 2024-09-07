@@ -34,7 +34,6 @@ const EventModal: React.FC<EventModalProps> = ({
       date: selectedDate,
     });
 
-  const dispatch = useDispatch(); // Redux의 dispatch 사용
   // 이벤트가 전달되면 해당 이벤트로 상태를 설정
   useEffect(() => {
     if (event) {
@@ -49,6 +48,16 @@ const EventModal: React.FC<EventModalProps> = ({
       });
     }
   }, [event, selectedDate]);
+
+  // 시간 형식을 HH:mm으로 변환하는 함수
+  const formatDate = (date: Date): string => {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(
+      2,
+      '0'
+    );
+    return `${hours}:${minutes}`;
+  };
 
   const handleOk = async () => {
     if (eventDetails.time.length !== 5) {
@@ -66,19 +75,6 @@ const EventModal: React.FC<EventModalProps> = ({
     kstDate.setSeconds(0);
     kstDate.setMilliseconds(0);
 
-    // 시간 형식을 HH:mm으로 변환하는 함수
-    const formatTime = (date: Date): string => {
-      const hours = String(date.getHours()).padStart(
-        2,
-        '0'
-      );
-      const minutes = String(date.getMinutes()).padStart(
-        2,
-        '0'
-      );
-      return `${hours}:${minutes}`;
-    };
-
     try {
       let response;
       let newEventDetails = eventDetails;
@@ -91,7 +87,7 @@ const EventModal: React.FC<EventModalProps> = ({
             id: eventDetails.id,
             user_id: localStorage.getItem('userId'),
             title: eventDetails.title,
-            time: formatTime(kstDate),
+            time: formatDate(kstDate),
             details: eventDetails.details,
             date: kstDate.toISOString().split('T')[0],
           },
@@ -99,7 +95,7 @@ const EventModal: React.FC<EventModalProps> = ({
         );
         newEventDetails = {
           ...eventDetails,
-          id: response.data.eventId,
+          id: eventDetails.id,
         };
       } else {
         // 새로운 이벤트 추가
@@ -108,7 +104,7 @@ const EventModal: React.FC<EventModalProps> = ({
           {
             user_id: localStorage.getItem('userId'),
             title: eventDetails.title,
-            time: formatTime(kstDate),
+            time: formatDate(kstDate),
             details: eventDetails.details,
             date: kstDate.toISOString().split('T')[0],
           },
@@ -119,11 +115,7 @@ const EventModal: React.FC<EventModalProps> = ({
           id: response.data.eventId,
         };
       }
-      // 서버에서 생성된 ID를 받아와서 새로운 이벤트에 추가
-      newEventDetails = {
-        ...eventDetails,
-        id: response.data.eventId, // 서버에서 반환한 ID 사용
-      };
+
       if (
         response.status === 201 ||
         response.status === 200
@@ -143,6 +135,14 @@ const EventModal: React.FC<EventModalProps> = ({
       console.error('이벤트 저장 중 오류 발생:', error);
       message.error('이벤트 저장 중 오류가 발생했습니다.');
     }
+  };
+
+  const formatTimeFromServer = (time: string): string => {
+    // "14:00:00" -> "14:00"으로 변환
+    if (time && time.length === 8 && time.endsWith(':00')) {
+      return time.slice(0, 5); // "14:00"
+    }
+    return time; // 이미 "HH:mm" 형식일 경우 그대로 반환
   };
 
   const handleCancel = () => {
@@ -168,7 +168,7 @@ const EventModal: React.FC<EventModalProps> = ({
           className="modal-input"
           type="text"
           placeholder="일정 제목"
-          value={eventDetails.title}
+          value={eventDetails.title} // DB에서 가져온 시간 값 변환
           onChange={(e) =>
             setEventDetails({
               ...eventDetails,
@@ -180,12 +180,13 @@ const EventModal: React.FC<EventModalProps> = ({
           className="modal-input"
           type="text"
           placeholder="시간 (예: 14:00)"
-          value={eventDetails.time}
+          value={eventDetails.time} // DB에서 가져온 시간 값 그대로 표시
           onChange={(e) => {
             let inputValue = e.target.value.replace(
               /\D/g,
               ''
             ); // 숫자 이외의 문자는 제거
+
             if (inputValue.length > 4) {
               inputValue = inputValue.slice(0, 4); // 최대 4자리 숫자만 허용
             }
@@ -194,16 +195,18 @@ const EventModal: React.FC<EventModalProps> = ({
               inputValue = `${inputValue.slice(
                 0,
                 2
-              )}:${inputValue.slice(2, 4)}`;
+              )}:${inputValue.slice(2, 4)}`; // "1400" -> "14:00" 변환
             }
 
+            // time 값에서 초(:00) 부분을 제거해 저장
             setEventDetails({
               ...eventDetails,
-              time: inputValue,
+              time: inputValue, // 변환된 시간 값 저장
             });
           }}
           style={{ marginTop: 10 }}
         />
+
         <textarea
           className="modal-input-details"
           placeholder="상세 내용"
