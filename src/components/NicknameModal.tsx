@@ -63,7 +63,7 @@ const NicknameModal: React.FC<NicknameModalProps> = ({
         )}
         <div className="modal-buttons">
           <button onClick={handleSubmit}>저장</button>
-          <button onClick={onClose}>닫기</button>
+          {/* <button onClick={onClose}>닫기</button> */}
         </div>
       </div>
     </div>
