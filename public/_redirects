@@ -1,1 +1,8 @@
-/*    /index.html   200
+# 정적 파일 경로를 예외 처리
+/_next/static/*  /_next/static/:splat  200
+/static/*        /static/:splat        200
+/favicon.ico     /favicon.ico          200
+/cat_calendar_192x192.png  /cat_calendar_192x192.png  200
+
+# 나머지 모든 경로는 Next.js에서 처리
+/*    /  200

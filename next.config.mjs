@@ -20,6 +20,7 @@ const nextConfig = {
   experimental: {
     esmExternals: true, // 더 엄격한 ESM 외부 모듈 처리
   },
+
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals = config.externals || [];
