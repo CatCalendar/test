@@ -7,7 +7,7 @@ import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 const AllListPage: React.FC = () => {
   const events = useSelector(
-    (state: RootState) => state.events.events
+    (state: RootState) => state.events?.events || []
   );
 
   const today = new Date();

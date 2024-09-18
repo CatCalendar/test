@@ -11,8 +11,11 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_APP_ID,
 };
 
+// Firebase 초기화가 한 번만 실행되도록 보호
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
+} else {
+  firebase.app(); // 이미 초기화된 앱을 사용
 }
 
 const messaging = firebase.messaging();

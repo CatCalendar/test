@@ -1,38 +1,33 @@
-// pages/api/save-token.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-import db from '../../../lib/db';
-// API 핸들러 함수
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method === 'POST') {
-    const { token } = req.body;
+import { NextResponse } from 'next/server'; // Next.js의 Edge API에서 사용하는 Response 객체
+import db from '../../../lib/db'; // DB 연결 설정
 
-    if (!token) {
-      return res
-        .status(400)
-        .json({ error: 'FCM token is required' });
+// POST 요청에 대한 처리
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { token, userId } = body;
+
+    if (!token || !userId) {
+      return NextResponse.json(
+        { error: 'FCM token and user ID are required' },
+        { status: 400 }
+      );
     }
 
-    try {
-      // 데이터베이스에 토큰을 저장하는 쿼리
-      const query =
-        'INSERT INTO user_tokens (token) VALUES (?)';
-      await db.query(query, [token]);
+    // FCM 토큰을 user 테이블에 저장하는 쿼리
+    const query =
+      'UPDATE users SET fcm_token = ? WHERE id = ?';
+    await db.query(query, [token, userId]);
 
-      return res
-        .status(200)
-        .json({ message: 'FCM token saved successfully' });
-    } catch (error) {
-      console.error('Error saving token:', error);
-      return res
-        .status(500)
-        .json({ error: 'Database error occurred' });
-    }
-  } else {
-    return res
-      .status(405)
-      .json({ error: 'Method not allowed' });
+    return NextResponse.json({
+      message: 'FCM token saved successfully',
+      token,
+    });
+  } catch (error) {
+    console.error('Error saving FCM token:', error);
+    return NextResponse.json(
+      { error: 'Database error occurred' },
+      { status: 500 }
+    );
   }
 }

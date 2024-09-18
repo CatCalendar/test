@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+import { messaging } from '../../firebase/firebase-config';
 
 const LoginRedirectPage: React.FC = () => {
   const router = useRouter();
@@ -28,7 +29,29 @@ const LoginRedirectPage: React.FC = () => {
 
           localStorage.setItem('token', token);
           localStorage.setItem('userId', userId.toString());
+          // FCM 토큰 요청
+          const fcmToken = await messaging.getToken();
+          if (fcmToken) {
+            // FCM 토큰을 서버로 전송하고, 서버에서 다시 클라이언트로 받아옴
+            const fcmResponse = await axios.post(
+              '/api/save-token',
+              {
+                token: fcmToken,
+                userId: userId,
+              }
+            );
 
+            // FCM 토큰을 로컬 스토리지에 저장
+            localStorage.setItem(
+              'fcmToken',
+              fcmResponse.data.token
+            );
+            console.log(
+              'FCM 토큰이 로컬 스토리지에 저장되었습니다.'
+            );
+          } else {
+            console.warn('FCM 토큰을 가져올 수 없습니다.');
+          }
           router.push('/main');
         } catch (error) {}
       } else if (!code) {

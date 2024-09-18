@@ -6,6 +6,7 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import Calendar from '../components/Calendar';
 import NicknameModal from '../components/NicknameModal';
 import '../styles/pages/main.scss';
+import { messaging } from '../../firebase/firebase-config';
 
 interface User {
   id: number;
@@ -38,6 +39,7 @@ const MainPage: React.FC = () => {
           }
         );
         setUser(userInfoResponse.data);
+
         // 닉네임이 없으면 모달창 열기
         if (!userInfoResponse.data.nickname) {
           setIsModalOpen(true);
@@ -51,7 +53,9 @@ const MainPage: React.FC = () => {
         // 오류가 발생하면 토큰을 재발급하고 다시 요청
         const refreshResponse = await axios.post(
           '/api/user/refreshToken',
-          { userId }
+          {
+            userId,
+          }
         );
         const newToken = refreshResponse.data.token;
 
@@ -67,10 +71,37 @@ const MainPage: React.FC = () => {
           }
         );
         setUser(retryResponse.data);
+
         if (!retryResponse.data.nickname) {
           setIsModalOpen(true);
         }
       } finally {
+        // FCM 토큰 요청
+        const fcmToken = await messaging.getToken();
+        const storedFcmToken =
+          localStorage.getItem('fcmToken');
+
+        if (fcmToken && fcmToken !== storedFcmToken) {
+          // FCM 토큰이 변경되었거나 저장된 토큰과 다르면 서버로 전송
+          const fcmResponse = await axios.post(
+            '/api/save-token',
+            {
+              token: fcmToken,
+              userId: userId,
+            }
+          );
+
+          // FCM 토큰을 로컬 스토리지에 저장
+          localStorage.setItem(
+            'fcmToken',
+            fcmResponse.data.token
+          );
+          console.log(
+            'FCM 토큰이 로컬 스토리지에 저장되었습니다.'
+          );
+        } else {
+          console.warn('FCM 토큰을 가져올 수 없습니다.');
+        }
         setLoading(false);
       }
     };
@@ -94,10 +125,6 @@ const MainPage: React.FC = () => {
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
-
-  if (loading) {
-    return <p>로딩 중...</p>;
-  }
 
   return (
     <div className="main-page">
