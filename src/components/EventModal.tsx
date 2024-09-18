@@ -7,7 +7,6 @@ import {
 } from '../store/eventsSlice';
 import { message } from 'antd';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
 interface EventModalProps {
   visible: boolean;
   selectedDate: Date;
@@ -122,6 +121,17 @@ const EventModal: React.FC<EventModalProps> = ({
       ) {
         message.success('이벤트가 저장되었습니다.');
         onOk(newEventDetails); // 상위 컴포넌트에 저장된 이벤트 정보 전달
+
+        // 푸시 알림 전송
+        await axios.post('/api/fcm', {
+          message: {
+            token: 'USER_FCM_TOKEN', // 사용자 FCM 토큰
+            title: eventDetails.title,
+            body: `이벤트가 성공적으로 저장되었습니다: ${eventDetails.title}`,
+            click_action: '/events', // 클릭 시 이동할 링크
+          },
+        });
+
         setEventDetails({
           id: 0,
           title: '',
@@ -135,14 +145,6 @@ const EventModal: React.FC<EventModalProps> = ({
       console.error('이벤트 저장 중 오류 발생:', error);
       message.error('이벤트 저장 중 오류가 발생했습니다.');
     }
-  };
-
-  const formatTimeFromServer = (time: string): string => {
-    // "14:00:00" -> "14:00"으로 변환
-    if (time && time.length === 8 && time.endsWith(':00')) {
-      return time.slice(0, 5); // "14:00"
-    }
-    return time; // 이미 "HH:mm" 형식일 경우 그대로 반환
   };
 
   const handleCancel = () => {
