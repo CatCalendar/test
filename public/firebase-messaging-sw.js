@@ -23,7 +23,7 @@ messaging.onBackgroundMessage((payload) => {
     payload.notification?.title || 'Default Title';
   const notificationOptions = {
     body: payload.notification?.body || 'Default body',
-    icon: '/path/to/icon.png', // 원하는 아이콘으로 변경
+    icon: '/cat_calendar_192x192.png', // 원하는 아이콘으로 변경
   };
 
   self.registration.showNotification(

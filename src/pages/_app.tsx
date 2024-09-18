@@ -65,7 +65,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                   payload.notification.body || '알림 내용',
                 icon:
                   payload.notification.icon ||
-                  '/path/to/icon.png',
+                  '/cat_calendar_192x192.png',
               }
             );
           }
