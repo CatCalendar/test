@@ -6,7 +6,10 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import Calendar from '../components/Calendar';
 import NicknameModal from '../components/NicknameModal';
 import '../styles/pages/main.scss';
-import { messaging } from '../../firebase/firebase-config';
+import {
+  messaging,
+  getToken,
+} from '../../firebase/firebase-config';
 
 interface User {
   id: number;
@@ -77,7 +80,7 @@ const MainPage: React.FC = () => {
         }
       } finally {
         // FCM 토큰 요청
-        const fcmToken = await messaging.getToken();
+        const fcmToken = await getToken(messaging);
         const storedFcmToken =
           localStorage.getItem('fcmToken');
 
