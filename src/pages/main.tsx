@@ -1,3 +1,5 @@
+// pages/main.tsx
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
@@ -53,58 +55,76 @@ const MainPage: React.FC = () => {
           error
         );
 
-        // 오류가 발생하면 토큰을 재발급하고 다시 요청
-        const refreshResponse = await axios.post(
-          '/api/user/refreshToken',
-          {
-            userId,
+        try {
+          // 오류가 발생하면 토큰을 재발급하고 다시 요청
+          const refreshResponse = await axios.post(
+            '/api/user/refreshToken',
+            {
+              userId,
+            }
+          );
+          const newToken = refreshResponse.data.token;
+
+          localStorage.setItem('token', newToken);
+          console.log('새 토큰이 발급 받기!');
+          console.log('새 토큰:', newToken);
+
+          // 새 토큰으로 사용자 정보 다시 요청
+          const retryResponse = await axios.get(
+            `/api/user/info?user_id=${userId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${newToken}`,
+              },
+            }
+          );
+          setUser(retryResponse.data);
+
+          if (!retryResponse.data.nickname) {
+            setIsModalOpen(true);
           }
-        );
-        const newToken = refreshResponse.data.token;
-
-        localStorage.setItem('token', newToken);
-
-        // 새 토큰으로 사용자 정보 다시 요청
-        const retryResponse = await axios.get(
-          `/api/user/info?user_id=${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${newToken}`,
-            },
-          }
-        );
-        setUser(retryResponse.data);
-
-        if (!retryResponse.data.nickname) {
-          setIsModalOpen(true);
+        } catch (refreshError) {
+          console.error(
+            '토큰 재발급 중 오류 발생:',
+            refreshError
+          );
+          // 필요 시 추가적인 오류 처리 로직
         }
       } finally {
         // FCM 토큰 요청
-        const fcmToken = await getToken(messaging);
-        const storedFcmToken =
-          localStorage.getItem('fcmToken');
+        try {
+          const fcmToken = await getToken(messaging);
+          const storedFcmToken =
+            localStorage.getItem('fcmToken');
 
-        if (fcmToken && fcmToken !== storedFcmToken) {
-          // FCM 토큰이 변경되었거나 저장된 토큰과 다르면 서버로 전송
-          const fcmResponse = await axios.post(
-            '/api/save-token',
-            {
-              token: fcmToken,
-              userId: userId,
-            }
-          );
+          if (fcmToken && fcmToken !== storedFcmToken) {
+            // FCM 토큰이 변경되었거나 저장된 토큰과 다르면 서버로 전송
+            const fcmResponse = await axios.post(
+              '/api/save-token',
+              {
+                token: fcmToken,
+                userId: userId,
+              }
+            );
 
-          // FCM 토큰을 로컬 스토리지에 저장
-          localStorage.setItem(
-            'fcmToken',
-            fcmResponse.data.token
+            // FCM 토큰을 로컬 스토리지에 저장
+            localStorage.setItem(
+              'fcmToken',
+              fcmResponse.data.token
+            );
+            console.log(
+              'FCM 토큰이 로컬 스토리지에 저장되었습니다.'
+            );
+          } else {
+            console.warn('FCM 토큰을 가져올 수 없습니다.');
+          }
+        } catch (fcmError) {
+          console.error(
+            'FCM 토큰 요청 중 오류 발생:',
+            fcmError
           );
-          console.log(
-            'FCM 토큰이 로컬 스토리지에 저장되었습니다.'
-          );
-        } else {
-          console.warn('FCM 토큰을 가져올 수 없습니다.');
         }
+
         setLoading(false);
       }
     };

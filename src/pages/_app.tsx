@@ -1,3 +1,5 @@
+// pages/_app.tsx
+
 import '../styles/global.scss'; // 글로벌 스타일 가져오기
 import { AppProps } from 'next/app';
 import { useEffect } from 'react';
@@ -6,68 +8,75 @@ import { store } from '../store/store';
 import Navbar from '../components/Navbar'; // Navbar 컴포넌트 가져오기
 import {
   messaging,
-  getToken,
   onMessage,
-} from '../../firebase/firebase-config'; // Firebase 설정 파일에서 가져오기
+} from '../../firebase/firebase-config'; // FCM 설정 파일에서 가져오기
 import { MessagePayload } from 'firebase/messaging';
 
 function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/firebase-messaging-sw.js') // 서비스 워커는 .js 파일로 등록해야 함
-        .then((registration) => {
+    // 서비스 워커 등록 함수
+    const registerServiceWorker = async () => {
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration =
+            await navigator.serviceWorker.register(
+              '/firebase-messaging-sw.js'
+            );
           console.log(
             'Firebase Service Worker registered:',
             registration
           );
-        })
-        .catch((err) => {
-          console.log(
+        } catch (err) {
+          console.error(
             'Service Worker registration failed:',
             err
           );
-        });
-
-      // FCM 구독 및 토큰 발급
-      const requestPermission = async () => {
-        try {
-          const permission =
-            await Notification.requestPermission();
-          if (permission === 'granted') {
-            const token = await getToken(messaging); // Firebase v9+ 방식으로 토큰 요청
-            console.log('FCM Token:', token);
-
-            // 서버로 토큰을 전송
-            await fetch('/api/save-token', {
-              method: 'POST',
-              body: JSON.stringify({ token }),
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
-          } else {
-            console.warn('Notification permission denied');
-          }
-        } catch (error) {
-          console.error(
-            'Error getting permission or token:',
-            error
-          );
         }
-      };
+      }
+    };
 
-      // 알림 수신 처리
+    // 알림 권한 요청 함수
+    const requestNotificationPermission = async () => {
+      const permission =
+        await Notification.requestPermission();
+      if (permission === 'granted') {
+        console.log('Notification permission granted.');
+      } else if (permission === 'denied') {
+        console.warn('Notification permission denied.');
+      } else {
+        console.log('Notification permission dismissed.');
+      }
+    };
+
+    // 메시지 수신 처리 함수
+    const handleMessage = () => {
       if (messaging) {
         onMessage(messaging, (payload: MessagePayload) => {
-          console.log('Message received: ', payload);
-
-          // 필요한 경우 알림 UI를 표시하거나 처리 로직 추가
+          console.log(
+            'Foreground message received: ',
+            payload
+          );
+          // 알림을 사용자에게 표시하거나 필요한 로직을 추가
+          if (payload.notification) {
+            new Notification(
+              payload.notification.title || '알림 제목',
+              {
+                body:
+                  payload.notification.body || '알림 내용',
+                icon:
+                  payload.notification.icon ||
+                  '/path/to/icon.png',
+              }
+            );
+          }
         });
       }
+    };
 
-      requestPermission();
-    }
+    // useEffect 내에서 함수 호출
+    registerServiceWorker();
+    requestNotificationPermission(); // 알림 권한 요청
+    handleMessage();
   }, []);
 
   return (
