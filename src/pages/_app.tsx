@@ -1,6 +1,6 @@
 // pages/_app.tsx
 
-import '../styles/pages/globals.scss';
+import '../styles/global.scss'; // 글로벌 스타일 가져오기
 import { AppProps } from 'next/app';
 import { useEffect } from 'react';
 import { Provider } from 'react-redux';
