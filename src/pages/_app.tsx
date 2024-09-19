@@ -1,8 +1,6 @@
-// pages/_app.tsx
-
 import '../styles/global.scss'; // 글로벌 스타일 가져오기
 import { AppProps } from 'next/app';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import { store } from '../store/store';
 import Navbar from '../components/Navbar'; // Navbar 컴포넌트 가져오기
@@ -11,42 +9,14 @@ import {
   onMessage,
 } from '../../firebase/firebase-config'; // FCM 설정 파일에서 가져오기
 import { MessagePayload } from 'firebase/messaging';
+import NotificationModal from '../components/NotificationModal'; // 모달 컴포넌트 가져오기
 
 function MyApp({ Component, pageProps }: AppProps) {
-  useEffect(() => {
-    // 서비스 워커 등록 함수
-    const registerServiceWorker = async () => {
-      if ('serviceWorker' in navigator) {
-        try {
-          const registration =
-            await navigator.serviceWorker.register(
-              '/firebase-messaging-sw.js'
-            );
-          console.log(
-            'Firebase Service Worker registered:',
-            registration
-          );
-        } catch (err) {
-          console.error(
-            'Service Worker registration failed:',
-            err
-          );
-        }
-      }
-    };
+  const [modalVisible, setModalVisible] = useState(false);
 
-    // 알림 권한 요청 함수
-    const requestNotificationPermission = async () => {
-      const permission =
-        await Notification.requestPermission();
-      if (permission === 'granted') {
-        console.log('Notification permission granted.');
-      } else if (permission === 'denied') {
-        console.warn('Notification permission denied.');
-      } else {
-        console.log('Notification permission dismissed.');
-      }
-    };
+  useEffect(() => {
+    // 페이지 로드 시 모달을 표시하여 알림 권한 요청을 유도
+    setModalVisible(true);
 
     // 메시지 수신 처리 함수
     const handleMessage = () => {
@@ -73,11 +43,27 @@ function MyApp({ Component, pageProps }: AppProps) {
       }
     };
 
-    // useEffect 내에서 함수 호출
-    registerServiceWorker();
-    requestNotificationPermission(); // 알림 권한 요청
     handleMessage();
   }, []);
+
+  // 알림 권한 요청 함수
+  const requestNotificationPermission = async () => {
+    const permission =
+      await Notification.requestPermission();
+    if (permission === 'granted') {
+      console.log('Notification permission granted.');
+    } else if (permission === 'denied') {
+      console.warn('Notification permission denied.');
+    } else {
+      console.log('Notification permission dismissed.');
+    }
+  };
+
+  // 모달창에서 "허용" 버튼 클릭 시 실행되는 함수
+  const handleAllowNotifications = () => {
+    requestNotificationPermission();
+    setModalVisible(false); // 모달창 닫기
+  };
 
   return (
     <Provider store={store}>
@@ -87,6 +73,13 @@ function MyApp({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </div>
         <Navbar />
+
+        {/* 알림 권한 요청 모달창 */}
+        <NotificationModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onAllow={handleAllowNotifications}
+        />
       </div>
     </Provider>
   );
