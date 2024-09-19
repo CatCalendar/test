@@ -6,5 +6,7 @@
 /kakao_login.png  /kakao_login.png  200
 /fonts/*  /fonts/:splat  200
 
+/sw.js  /sw.js  200
+
 # 나머지 모든 경로는 Next.js에서 처리
 /*    /  200
