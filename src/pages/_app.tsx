@@ -15,8 +15,21 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    // 페이지 로드 시 모달을 표시하여 알림 권한 요청을 유도
-    setModalVisible(true);
+    // 페이지 로드 시 알림 권한 상태 확인
+    const checkNotificationPermission = () => {
+      if (Notification.permission === 'default') {
+        // 권한 요청 전 상태면 모달을 표시
+        setModalVisible(true);
+      } else if (Notification.permission === 'granted') {
+        console.log(
+          'Notification permission already granted.'
+        );
+      } else if (Notification.permission === 'denied') {
+        console.warn('Notification permission denied.');
+      }
+    };
+
+    checkNotificationPermission();
 
     // 메시지 수신 처리 함수
     const handleMessage = () => {

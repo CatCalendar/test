@@ -7,6 +7,6 @@
 /fonts/*  /fonts/:splat  200
 /sw.js  /sw.js  200
 /firebase-messaging-sw.js  /firebase-messaging-sw.js  200
-
+/workbox-*.js  /workbox-:splat  200
 # 나머지 모든 경로는 Next.js에서 처리
 /*    /  200

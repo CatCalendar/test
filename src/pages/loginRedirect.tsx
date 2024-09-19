@@ -59,7 +59,16 @@ const LoginRedirectPage: React.FC = () => {
 
           router.push('/main');
         } catch (error) {
-          console.error('로그인 처리 중 오류 발생:', error);
+          if (axios.isAxiosError(error)) {
+            // AxiosError인 경우
+            console.error(
+              'Axios error 발생:',
+              error.response?.data || error.message || error
+            );
+          } else {
+            // 그 외 일반 오류 처리
+            console.error('일반적인 오류 발생:', error);
+          }
         }
       } else if (!code) {
         console.warn('카카오 인증 코드가 없습니다.');
