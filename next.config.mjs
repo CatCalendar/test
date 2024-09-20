@@ -5,6 +5,7 @@ const isProd = process.env.NODE_ENV === 'production';
 
 const pwaConfig = withPWA({
   dest: 'public',
+  swSrc: 'public/sw.js', // sw.js 경로 확인
   register: true,
   skipWaiting: true,
   disable: !isProd, // 개발 모드에서는 PWA 비활성화

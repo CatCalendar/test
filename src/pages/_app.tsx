@@ -17,15 +17,33 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     // 페이지 로드 시 알림 권한 상태 확인
     const checkNotificationPermission = () => {
-      if (Notification.permission === 'default') {
+      const storedPermission = localStorage.getItem(
+        'notificationPermission'
+      );
+
+      if (
+        Notification.permission === 'default' &&
+        !storedPermission
+      ) {
         // 권한 요청 전 상태면 모달을 표시
         setModalVisible(true);
-      } else if (Notification.permission === 'granted') {
+      } else if (
+        Notification.permission === 'granted' &&
+        !storedPermission
+      ) {
         console.log(
           'Notification permission already granted.'
         );
+        localStorage.setItem(
+          'notificationPermission',
+          'granted'
+        ); // 로컬 스토리지에 저장
       } else if (Notification.permission === 'denied') {
         console.warn('Notification permission denied.');
+        localStorage.setItem(
+          'notificationPermission',
+          'denied'
+        ); // 로컬 스토리지에 저장
       }
     };
 
@@ -65,8 +83,16 @@ function MyApp({ Component, pageProps }: AppProps) {
       await Notification.requestPermission();
     if (permission === 'granted') {
       console.log('Notification permission granted.');
+      localStorage.setItem(
+        'notificationPermission',
+        'granted'
+      ); // 로컬 스토리지에 저장
     } else if (permission === 'denied') {
       console.warn('Notification permission denied.');
+      localStorage.setItem(
+        'notificationPermission',
+        'denied'
+      ); // 로컬 스토리지에 저장
     } else {
       console.log('Notification permission dismissed.');
     }
