@@ -125,10 +125,10 @@ const EventModal: React.FC<EventModalProps> = ({
         // 푸시 알림 전송
         await axios.post('/api/fcm', {
           message: {
-            token: 'USER_FCM_TOKEN', // 사용자 FCM 토큰
+            token: localStorage.getItem('fcmToken'),
             title: eventDetails.title,
             body: `이벤트가 성공적으로 저장되었습니다: ${eventDetails.title}`,
-            click_action: '/events', // 클릭 시 이동할 링크
+            click_action: '/', // 클릭 시 이동할 링크
           },
         });
 
