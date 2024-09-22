@@ -1,5 +1,3 @@
-// pages/main.tsx
-
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
@@ -11,7 +9,9 @@ import '../styles/pages/main.scss';
 import {
   messaging,
   getToken,
+  onMessage,
 } from '../../firebase/firebase-config';
+import NotificationModal from '../components/NotificationModal'; // 모달 컴포넌트 가져오기
 
 interface User {
   id: number;
@@ -23,6 +23,7 @@ const MainPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -91,50 +92,134 @@ const MainPage: React.FC = () => {
           // 필요 시 추가적인 오류 처리 로직
         }
       } finally {
-        // FCM 토큰 요청
-        try {
-          const fcmToken = await getToken(messaging);
-          const storedFcmToken =
-            localStorage.getItem('fcmToken');
-
-          if (fcmToken && fcmToken !== storedFcmToken) {
-            // FCM 토큰이 변경되었거나 저장된 토큰과 다르면 서버로 전송
-            const fcmResponse = await axios.post(
-              '/api/save-token',
-              {
-                token: fcmToken,
-                userId: userId,
-              }
-            );
-
-            // FCM 토큰을 로컬 스토리지에 저장
-            localStorage.setItem(
-              'fcmToken',
-              fcmResponse.data.token
-            );
-            console.log(
-              'FCM 토큰이 로컬 스토리지에 저장되었습니다.'
-            );
-          } else {
-            console.warn('FCM 토큰을 가져올 수 없습니다.');
-          }
-        } catch (fcmError) {
-          console.error(
-            'FCM 토큰 요청 중 오류 발생:',
-            fcmError
-          );
-        }
-
+        checkNotificationPermission(); // 알림 권한 확인
         setLoading(false);
+      }
+    };
+
+    const checkNotificationPermission = async () => {
+      const storedPermission = localStorage.getItem(
+        'notificationPermission'
+      );
+      if (
+        Notification.permission === 'default' &&
+        !storedPermission
+      ) {
+        // 권한 요청 전 상태면 모달을 표시
+        setModalVisible(true);
+      } else if (
+        Notification.permission === 'granted' &&
+        !storedPermission
+      ) {
+        console.log(
+          'Notification permission already granted.'
+        );
+        localStorage.setItem(
+          'notificationPermission',
+          'granted'
+        ); // 로컬 스토리지에 저장
+        requestFcmToken(); // 권한이 허용된 경우 FCM 토큰 요청
+      } else if (Notification.permission === 'denied') {
+        console.warn('Notification permission denied.');
+        localStorage.setItem(
+          'notificationPermission',
+          'denied'
+        ); // 로컬 스토리지에 저장
+      }
+    };
+
+    const requestFcmToken = async () => {
+      try {
+        const fcmToken = await getToken(messaging);
+        const storedFcmToken =
+          localStorage.getItem('fcmToken');
+
+        if (fcmToken && fcmToken !== storedFcmToken) {
+          // FCM 토큰이 변경되었거나 저장된 토큰과 다르면 서버로 전송
+          const fcmResponse = await axios.post(
+            '/api/save-token',
+            {
+              token: fcmToken,
+              userId: localStorage.getItem('userId'),
+            }
+          );
+
+          // FCM 토큰을 로컬 스토리지에 저장
+          localStorage.setItem(
+            'fcmToken',
+            fcmResponse.data.token
+          );
+          console.log(
+            'FCM 토큰이 로컬 스토리지에 저장되었습니다.'
+          );
+        } else {
+          console.warn('FCM 토큰을 가져올 수 없습니다.');
+        }
+      } catch (fcmError) {
+        console.error(
+          'FCM 토큰 요청 중 오류 발생:',
+          fcmError
+        );
       }
     };
 
     fetchData();
   }, [router]);
 
-  if (loading) {
-    return <p>로딩 중...</p>;
-  }
+  const requestFcmToken = async () => {
+    try {
+      const fcmToken = await getToken(messaging);
+      const storedFcmToken =
+        localStorage.getItem('fcmToken');
+
+      if (fcmToken && fcmToken !== storedFcmToken) {
+        // FCM 토큰이 변경되었거나 저장된 토큰과 다르면 서버로 전송
+        const fcmResponse = await axios.post(
+          '/api/save-token',
+          {
+            token: fcmToken,
+            userId: localStorage.getItem('userId'),
+          }
+        );
+
+        // FCM 토큰을 로컬 스토리지에 저장
+        localStorage.setItem(
+          'fcmToken',
+          fcmResponse.data.token
+        );
+        console.log(
+          'FCM 토큰이 로컬 스토리지에 저장되었습니다.'
+        );
+      } else {
+        console.warn('FCM 토큰을 가져올 수 없습니다.');
+      }
+    } catch (fcmError) {
+      console.error(
+        'FCM 토큰 요청 중 오류 발생:',
+        fcmError
+      );
+    }
+  };
+
+  // 알림 권한 요청 함수
+  const requestNotificationPermission = async () => {
+    const permission =
+      await Notification.requestPermission();
+    if (permission === 'granted') {
+      console.log('Notification permission granted.');
+      localStorage.setItem(
+        'notificationPermission',
+        'granted'
+      ); // 로컬 스토리지에 저장
+      requestFcmToken(); // 권한 허용 시 FCM 토큰 요청
+    } else if (permission === 'denied') {
+      console.warn('Notification permission denied.');
+      localStorage.setItem(
+        'notificationPermission',
+        'denied'
+      ); // 로컬 스토리지에 저장
+    }
+  };
 
   const handleNicknameSubmitSuccess = (
     nickname: string
@@ -148,6 +233,15 @@ const MainPage: React.FC = () => {
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
+
+  const handleAllowNotifications = () => {
+    requestNotificationPermission();
+    setModalVisible(false); // 모달창 닫기
+  };
+
+  if (loading) {
+    return <p>로딩 중...</p>;
+  }
 
   return (
     <div className="main-page">
@@ -182,6 +276,13 @@ const MainPage: React.FC = () => {
           onClose={handleModalClose}
         />
       )}
+
+      {/* 알림 권한 요청 모달창 */}
+      <NotificationModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onAllow={handleAllowNotifications}
+      />
     </div>
   );
 };

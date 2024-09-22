@@ -77,33 +77,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     handleMessage();
   }, []);
 
-  // 알림 권한 요청 함수
-  const requestNotificationPermission = async () => {
-    const permission =
-      await Notification.requestPermission();
-    if (permission === 'granted') {
-      console.log('Notification permission granted.');
-      localStorage.setItem(
-        'notificationPermission',
-        'granted'
-      ); // 로컬 스토리지에 저장
-    } else if (permission === 'denied') {
-      console.warn('Notification permission denied.');
-      localStorage.setItem(
-        'notificationPermission',
-        'denied'
-      ); // 로컬 스토리지에 저장
-    } else {
-      console.log('Notification permission dismissed.');
-    }
-  };
-
-  // 모달창에서 "허용" 버튼 클릭 시 실행되는 함수
-  const handleAllowNotifications = () => {
-    requestNotificationPermission();
-    setModalVisible(false); // 모달창 닫기
-  };
-
   return (
     <Provider store={store}>
       <div className="wrap">
@@ -112,13 +85,6 @@ function MyApp({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </div>
         <Navbar />
-
-        {/* 알림 권한 요청 모달창 */}
-        <NotificationModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          onAllow={handleAllowNotifications}
-        />
       </div>
     </Provider>
   );
