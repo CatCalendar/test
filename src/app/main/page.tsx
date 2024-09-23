@@ -14,7 +14,7 @@ import {
   onMessage,
 } from '../../../firebase/firebase-config';
 import NotificationModal from '../../components/NotificationModal'; // 모달 컴포넌트 가져오기
-
+import Image from 'next/image';
 interface User {
   id: number;
   nickname: string;
@@ -253,7 +253,7 @@ const MainPage: React.FC = () => {
             <p>{user.nickname}의 일정</p>
             <span>
               {user.kakao_image ? (
-                <img
+                <Image
                   src={user.kakao_image}
                   alt="User"
                   className="user-image"
