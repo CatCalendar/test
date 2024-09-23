@@ -23,11 +23,14 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="login-page">
+      {/* Image 클릭 시 handleLogin 함수가 호출되도록 onClick 속성 추가 */}
       <Image
         src="/kakao_login.png"
         alt="카카오 로그인"
         width={200}
         height={50}
+        onClick={handleLogin} // onClick 이벤트 추가
+        style={{ cursor: 'pointer' }} // 클릭 가능한 UI로 보이도록 포인터 추가
       />
     </div>
   );

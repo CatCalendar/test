@@ -35,40 +35,48 @@ const LoginRedirectPage: React.FC = () => {
           localStorage.setItem('token', token);
           localStorage.setItem('userId', userId.toString());
 
-          // FCM 토큰 요청
-          const fcmToken = await getToken(messaging);
-          if (fcmToken) {
-            // FCM 토큰을 서버로 전송
-            const fcmResponse = await axios.post(
-              '/api/save-token',
-              {
-                token: fcmToken,
-                userId: userId,
+          // FCM 토큰 요청 및 저장
+          const requestFcmToken = async () => {
+            try {
+              const fcmToken = await getToken(messaging);
+              if (fcmToken) {
+                const fcmResponse = await axios.post(
+                  '/api/save-token',
+                  {
+                    token: fcmToken,
+                    userId: userId,
+                  }
+                );
+                localStorage.setItem(
+                  'fcmToken',
+                  fcmResponse.data.token
+                );
+                console.log(
+                  'FCM 토큰이 로컬 스토리지에 저장되었습니다.'
+                );
+              } else {
+                console.warn(
+                  'FCM 토큰을 가져올 수 없습니다.'
+                );
               }
-            );
+            } catch (fcmError) {
+              console.error(
+                'FCM 토큰 요청 중 오류 발생:',
+                fcmError
+              );
+            }
+          };
 
-            // FCM 토큰을 로컬 스토리지에 저장
-            localStorage.setItem(
-              'fcmToken',
-              fcmResponse.data.token
-            );
-            console.log(
-              'FCM 토큰이 로컬 스토리지에 저장되었습니다.'
-            );
-          } else {
-            console.warn('FCM 토큰을 가져올 수 없습니다.');
-          }
+          requestFcmToken(); // FCM 토큰 요청 함수 호출
 
-          router.push('/main');
+          router.push('/main'); // 메인 페이지로 리다이렉트
         } catch (error) {
           if (axios.isAxiosError(error)) {
-            // AxiosError인 경우
             console.error(
               'Axios error 발생:',
               error.response?.data || error.message || error
             );
           } else {
-            // 그 외 일반 오류 처리
             console.error('일반적인 오류 발생:', error);
           }
         }
