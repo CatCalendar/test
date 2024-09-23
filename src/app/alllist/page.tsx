@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/pages/alllistPage.scss';
+import '../../styles/pages/alllistPage.scss';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

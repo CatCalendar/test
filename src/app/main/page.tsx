@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
@@ -5,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import Calendar from '../../components/Calendar';
 import NicknameModal from '../../components/NicknameModal';
-import '../styles/pages/main.scss';
+import '../../styles/pages/main.scss';
 import {
   messaging,
   getToken,

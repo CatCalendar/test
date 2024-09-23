@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/pages/loginPage.scss'; // CSS 모듈 사용 // CSS 모듈 사용으로 변경 (권장)
+import '../../styles/pages/loginPage.scss'; // CSS 모듈 사용 // CSS 모듈 사용으로 변경 (권장)
 
 const LoginPage: React.FC = () => {
   const handleLogin = () => {
