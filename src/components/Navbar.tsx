@@ -8,7 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import { usePathname, useRouter } from 'next/navigation'; // next/router 대신 next/navigation 사용
+import { usePathname, useRouter } from 'next/navigation';
 import '../styles/components/Navbar.scss'; // 기존 SCSS 파일 그대로 사용
 
 const Navbar: React.FC = () => {

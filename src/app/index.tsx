@@ -1,7 +1,7 @@
 'use client'; // 클라이언트 컴포넌트
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const IndexPage = () => {
   const router = useRouter();
