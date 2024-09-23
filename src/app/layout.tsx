@@ -1,5 +1,3 @@
-'use client'; // 클라이언트 사이드 컴포넌트임을 명시
-
 // src/app/layout.tsx
 import '../styles/global.scss'; // 글로벌 스타일 가져오기
 import { ReactNode } from 'react';
