@@ -2,6 +2,7 @@
 
 import React from 'react';
 import '../../styles/pages/loginPage.scss'; // CSS 모듈 사용
+import Image from 'next/image';
 
 const LoginPage: React.FC = () => {
   const handleLogin = () => {
@@ -22,12 +23,10 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="login-page">
-      <img
-        onClick={handleLogin}
-        className="login-button"
+      <Image
         src="/kakao_login.png"
         alt="카카오 로그인"
-        width={200} // 적절한 이미지 크기 설정
+        width={200}
         height={50}
       />
     </div>
