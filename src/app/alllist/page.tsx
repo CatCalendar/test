@@ -1,3 +1,4 @@
+'use client'; // 클라이언트 사이드 컴포넌트임을 명시
 import React from 'react';
 import '../../styles/pages/allLIstPage.scss';
 import { useSelector } from 'react-redux';
