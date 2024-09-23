@@ -9,24 +9,18 @@ import {
   onMessage,
 } from '../../firebase/firebase-config'; // FCM 설정 파일에서 가져오기
 import { MessagePayload } from 'firebase/messaging';
-import NotificationModal from '../components/NotificationModal'; // 모달 컴포넌트 가져오기
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const [modalVisible, setModalVisible] = useState(false);
-
   useEffect(() => {
     // 페이지 로드 시 알림 권한 상태 확인
     const checkNotificationPermission = () => {
       const storedPermission = localStorage.getItem(
         'notificationPermission'
       );
-
       if (
         Notification.permission === 'default' &&
         !storedPermission
       ) {
-        // 권한 요청 전 상태면 모달을 표시
-        setModalVisible(true);
       } else if (
         Notification.permission === 'granted' &&
         !storedPermission

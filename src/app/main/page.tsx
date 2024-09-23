@@ -3,15 +3,15 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
-import Calendar from '../components/Calendar';
-import NicknameModal from '../components/NicknameModal';
+import Calendar from '../../components/Calendar';
+import NicknameModal from '../../components/NicknameModal';
 import '../styles/pages/main.scss';
 import {
   messaging,
   getToken,
   onMessage,
-} from '../../firebase/firebase-config';
-import NotificationModal from '../components/NotificationModal'; // 모달 컴포넌트 가져오기
+} from '../../../firebase/firebase-config';
+import NotificationModal from '../../components/NotificationModal'; // 모달 컴포넌트 가져오기
 
 interface User {
   id: number;

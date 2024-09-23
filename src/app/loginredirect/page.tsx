@@ -4,7 +4,7 @@ import axios from 'axios';
 import {
   messaging,
   getToken,
-} from '../../firebase/firebase-config';
+} from '../../../firebase/firebase-config';
 
 const LoginRedirectPage: React.FC = () => {
   const router = useRouter();
