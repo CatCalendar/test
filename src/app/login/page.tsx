@@ -1,4 +1,4 @@
-'use client'; // 클라이언트 사이드 컴포넌트임을 명시
+'use client';
 
 import React from 'react';
 import '../../styles/pages/loginPage.scss'; // CSS 모듈 사용

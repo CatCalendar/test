@@ -1,4 +1,4 @@
-'use client'; // 클라이언트 컴포넌트
+'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
