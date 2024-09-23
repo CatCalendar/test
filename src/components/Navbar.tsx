@@ -1,3 +1,5 @@
+'use client'; // 클라이언트 컴포넌트임을 명시
+
 import {
   faCalendar,
   faCircleUser,
@@ -6,22 +8,23 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import { useRouter } from 'next/router'; // Next.js의 useRouter 훅 사용
+import { usePathname, useRouter } from 'next/navigation'; // next/router 대신 next/navigation 사용
 import '../styles/components/Navbar.scss'; // 기존 SCSS 파일 그대로 사용
 
 const Navbar: React.FC = () => {
-  const router = useRouter(); // 현재 경로를 가져오기 위해 useRouter 사용
+  const router = useRouter(); // 새로운 useRouter 사용
+  const pathname = usePathname(); // 경로를 가져오기 위해 usePathname 사용
 
   // 사용할 경로를 배열로 정의
   const allowedPaths: string[] = [
     '/main',
-    '/userInfo',
+    '/userinfo',
     '/settings',
-    '/allList',
+    '/alllist',
   ];
 
-  // 현재 경로가 allowedPaths에 포함되지 않으면 null 반환
-  if (!allowedPaths.includes(router.pathname)) {
+  // 현재 경로가 undefined이거나 allowedPaths에 포함되지 않으면 null 반환
+  if (!pathname || !allowedPaths.includes(pathname)) {
     return null;
   }
 
@@ -41,7 +44,7 @@ const Navbar: React.FC = () => {
           <FontAwesomeIcon
             icon={faCircleUser}
             className={
-              router.pathname === '/userInfo'
+              pathname === '/userInfo'
                 ? 'nav-link active'
                 : 'nav-link'
             }
@@ -55,7 +58,7 @@ const Navbar: React.FC = () => {
           <FontAwesomeIcon
             icon={faCalendar}
             className={
-              router.pathname === '/main'
+              pathname === '/main'
                 ? 'nav-link active'
                 : 'nav-link'
             }
@@ -69,7 +72,7 @@ const Navbar: React.FC = () => {
           <FontAwesomeIcon
             icon={faList}
             className={
-              router.pathname === '/allList'
+              pathname === '/allList'
                 ? 'nav-link active'
                 : 'nav-link'
             }
@@ -82,7 +85,7 @@ const Navbar: React.FC = () => {
           <FontAwesomeIcon
             icon={faGear}
             className={
-              router.pathname === '/settings'
+              pathname === '/settings'
                 ? 'nav-link active'
                 : 'nav-link'
             }
