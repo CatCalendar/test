@@ -14,13 +14,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
-      <body>
-        <Provider store={store}>
-          <Navbar />
-          {children}
-        </Provider>
-      </body>
-    </html>
+    <Provider store={store}>
+      <div className="wrap">
+        <div className="is_nav">{children}</div>
+        <Navbar />
+      </div>
+    </Provider>
   );
 }
