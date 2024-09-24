@@ -3,7 +3,7 @@ import withPWA from 'next-pwa';
 // NODE_ENV가 'production'일 때만 PWA 활성화
 const isProd = process.env.NODE_ENV === 'production';
 
-const pwaConfig = withPWA({
+const pwaConfig = {
   dest: 'public',
   register: true,
   skipWaiting: true,
@@ -12,15 +12,16 @@ const pwaConfig = withPWA({
     /app-build-manifest\.json$/,
     /_buildManifest\.js$/,
   ],
-});
+};
 
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   experimental: {
-    esmExternals: true, // 더 엄격한 ESM 외부 모듈 처리
+    // 최신 Next.js에서는 esmExternals가 기본값으로 true이므로 제거 가능
   },
 
+  // Webpack 설정 추가
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals = config.externals || [];
@@ -28,7 +29,7 @@ const nextConfig = {
         'rc-util': 'commonjs rc-util',
       });
     }
-    // Babel 로더 추가하여 프라이빗 메소드 변환
+
     config.module.rules.push({
       test: /\.(js|jsx|ts|tsx)$/,
       exclude: /node_modules/,
@@ -37,14 +38,16 @@ const nextConfig = {
         options: {
           presets: ['next/babel'],
           plugins: [
-            '@babel/plugin-transform-private-methods', // 프라이빗 메소드 변환 플러그인 추가
-            '@babel/plugin-transform-runtime', // 필요 시 다른 플러그인 추가 가능
+            '@babel/plugin-transform-private-methods',
+            '@babel/plugin-transform-runtime',
           ],
         },
       },
     });
+
     return config;
   },
 };
 
-export default pwaConfig(nextConfig);
+// PWA 설정과 Next.js 설정을 통합하여 export
+export default withPWA(pwaConfig)(nextConfig);
