@@ -8,6 +8,9 @@ import {
   getToken,
 } from '../../../firebase/firebase-config';
 
+// 동적 페이지에 적용
+export const dynamic = 'force-dynamic';
+
 const LoginRedirectPage: React.FC = () => {
   const router = useRouter();
   const [isHandlingLogin, setIsHandlingLogin] =

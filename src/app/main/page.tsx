@@ -15,6 +15,9 @@ import {
 import NotificationModal from '../../components/NotificationModal';
 import Image from 'next/image';
 
+// 동적 페이지에 적용
+export const dynamic = 'force-dynamic';
+
 interface User {
   id: number;
   nickname: string;

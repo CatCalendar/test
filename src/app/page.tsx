@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+// 동적 페이지에 적용
+export const dynamic = 'force-dynamic';
 
 const IndexPage = () => {
   const router = useRouter();

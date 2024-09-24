@@ -17,9 +17,7 @@ const pwaConfig = {
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  experimental: {
-    // 최신 Next.js에서는 esmExternals가 기본값으로 true이므로 제거 가능
-  },
+  output: 'standalone', // 추가: 독립 실행을 위한 설정
 
   // Webpack 설정 추가
   webpack: (config, { isServer }) => {

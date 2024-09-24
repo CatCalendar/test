@@ -1,11 +1,14 @@
 'use client'; // 클라이언트 전용 컴포넌트임을 명시
 
 import React from 'react';
-import '../../styles/pages/allLIstPage.scss';
+import '../../styles/pages/alllistPage.scss';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+
+// 동적 페이지에 적용
+export const dynamic = 'force-dynamic';
 
 const AllListPage: React.FC = () => {
   const events = useSelector(
